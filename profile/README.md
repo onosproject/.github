@@ -19,7 +19,7 @@ horizontal scaling to distribute the control I/O load and to reduce the “blast
 The following set of components can be classified as being part of a more general platform as they are not inherently specific to the SD-Fabric 
 solution. All communicate via gRPC APIs using TLS; option to bypass TLS will also be available.
 
-![Key µONOS Platform Components](micro-onos-components.png)
+![Key µONOS Platform Components](https://raw.githubusercontent.com/onosproject/.github/master/profile/micro-onos-components.png)
 
 ### Persistent NIB (onos-topo)
 Functionality of the NIB is expected to be provided by the existing `onos-topo` subsystem. It offers extensible and elastic 
