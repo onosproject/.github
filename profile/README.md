@@ -17,18 +17,18 @@ horizontal scaling to distribute the control I/O load and to reduce the “blast
 
 ## Key Platform Components 
 The following set of components can be classified as being part of a more general platform as they are not inherently specific to the SD-Fabric 
-solution. All communicate via gRPC APIs using TLS; option to bypass TLS will also be available.
+solution. All communicate via [gRPC APIs][onos-api] using TLS; option to bypass TLS will also be available.
 
 ![Key µONOS Platform Components](https://raw.githubusercontent.com/onosproject/.github/master/profile/micro-onos-components.png)
 
-### Persistent NIB (onos-topo)
-Functionality of the NIB is expected to be provided by the existing `onos-topo` subsystem. It offers extensible and elastic 
-(Entity/Relation/Kind) model via its NB gRPC API to other components and applications. As such, it is suitable for storing and retrieving 
+### Persistent NIB ([onos-topo][onos-topo])
+This subsystem offers persistence of network entities using an extensible and elastic (Entity/Relation/Kind) model 
+via its NB gRPC API to other components and applications. As such, it is suitable for storing and retrieving 
 information about major network assets, e.g. devices, links, controllers, hosts, virtual network entities.
 
 The information, organized as a dynamic graph, can be searched, browsed, and monitored easily by any platform or app components.
 
-### Device Provisioner Component (device-provisioner)
+### Device Provisioner Component ([device-provisioner][device-provisioner])
 This component is primarily responsible for forwarding pipeline configuration/reconciliation using P4Runtime and device chassis configuration via gNMI.
 
 It will expose NB gRPC API that allows management of different pipeline configuration artifact sets (p4info, architecture-specific binaries, etc.) 
@@ -40,7 +40,7 @@ This API is split into two parts:
 
 Mapping of pipeline configurations to devices is to be done separately, via an aspect attached to the device entity in `onos-topo`.
 
-### Topology Discovery Component (topo-discovery)
+### Topology Discovery Component ([topo-discovery][topo-discovery])
 The discovery component is responsible for discovering devices (switches, IPUs) their connectivity via infrastructure links,
 and connected end-stations (hosts). Discovery of links and hosts will occur indirectly through local agents to distribute the I/O load and to
 help maintain performance at scale.
@@ -48,23 +48,31 @@ help maintain performance at scale.
 For the most part, the component will operate autonomously. However, it will also expose an auxiliary gRPC API to allow coarse-grained control
 of the discovery mechanism, e.g., trigger all or trigger device port/link discovery.
 
-### Path Service Component (path-service)
-The path service component provides path and spanning-tree computation services via a gRPC API. To accomplish this, the component interfaces
-with onos-topo (NIB) to maintain an up-to-date in-memory weighted directed multigraph from the NIB link entities, on which it can perform 
-efficient path computation. The API should support multiple path computation path algorithms, i.e. Dijkstra, Yen K-shortest paths, Bellman-Ford,
-Kruskal, Johnson (but not necessarily all of these).   _This component has not yet been designed or developed._
+### Data Plane Reconciliation Library ([onos-control][onos-control])
+This piece of the µONOS architecture is provided as a library, rather than a separate component. The principal aim of the library is to provide
+µONOS components and applications with common and uniform means to program the behavior of the data plane using P4Runtime constructs,
+while remaining reasonably insulated from the details of a particular P4 program on the networking device, i.e. physical pipeline.
 
-### Switch Local Discovery Agent (link-agent - to be renamed) 
+### Switch Local Discovery Agent ([link-agent][link-agent] - to be renamed) 
 The local agent (LA) components are expected to be deployed on each data-plane device (switch or IPU). At the minimum, they are responsible for
 local emissions and handling of ARP and LLDP packets for the purpose of host and infrastructure link discovery.
 
 The LA will provide access to the discovered information/state via gNMI and a custom YANG model. Such mechanism should also be provided to allow
 configuration of the agent host and link discovery behavior.
 
-### Data Plane Reconciliation Library (onos-control)
-This piece of the µONOS architecture is provided as a library, rather than a separate component. The principal aim of the library is to provide
-µONOS components and applications with common and uniform means to program the behavior of the data plane using P4Runtime constructs,
-while remaining reasonably insulated from the details of a particular P4 program on the networking device, i.e. physical pipeline.
-
+### Path Service Component (path-service)
+The path service component provides path and spanning-tree computation services via a gRPC API. To accomplish this, the component interfaces
+with onos-topo (NIB) to maintain an up-to-date in-memory weighted directed multigraph from the NIB link entities, on which it can perform 
+efficient path computation. The API should support multiple path computation path algorithms, i.e. Dijkstra, Yen K-shortest paths, Bellman-Ford,
+Kruskal, Johnson (but not necessarily all of these).   _This component has not yet been designed or developed._
 
 _More documentation will be provided over time..._
+
+
+[onos-api]: https://github.com/onosproject/onos-api
+[onos-cli]: https://github.com/onosproject/onos-cli
+[onos-topo]: https://github.com/onosproject/onos-topo
+[onos-control]: https://github.com/onosproject/onos-control
+[device-provisioner]: https://github.com/onosproject/device-provisioner
+[topo-discovery]: https://github.com/onosproject/topo-discovery
+[link-agent]: https://github.com/onosproject/link-agent
