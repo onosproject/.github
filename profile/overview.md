@@ -17,7 +17,7 @@ horizontal scaling to distribute the control I/O load and to reduce the “blast
 
 ## Key Platform Components 
 The following set of components can be classified as being part of a more general platform as they are not inherently specific to the SD-Fabric 
-solution. All communicate via [gRPC APIs][onos-api] using TLS; option to bypass TLS will also be available.
+solution. All communicate via [gRPC APIs][onos-api] using TLS; option to bypass TLS will also be available. The components are available as Docker images and have corresponding Helm charts available under the [onos-helm-charts][onos-helm-charts] repository.
 
 ![Key µONOS Platform Components](https://raw.githubusercontent.com/onosproject/.github/master/profile/micro-onos-components.png)
 
@@ -53,6 +53,8 @@ This piece of the µONOS architecture is provided as a library, rather than a se
 µONOS components and applications with common and uniform means to program the behavior of the data plane using P4Runtime constructs,
 while remaining reasonably insulated from the details of a particular P4 program on the networking device, i.e. physical pipeline.
 
+This component is under active development.
+
 ### Switch Local Discovery Agent ([link-agent][link-agent] - to be renamed) 
 The local agent (LA) components are expected to be deployed on each data-plane device (switch or IPU). At the minimum, they are responsible for
 local emissions and handling of ARP and LLDP packets for the purpose of host and infrastructure link discovery.
@@ -66,7 +68,19 @@ with onos-topo (NIB) to maintain an up-to-date in-memory weighted directed multi
 efficient path computation. The API should support multiple path computation path algorithms, i.e. Dijkstra, Yen K-shortest paths, Bellman-Ford,
 Kruskal, Johnson (but not necessarily all of these).   _This component has not yet been designed or developed._
 
+### Consolidated CLI ([onos-cli][onos-cli])
+All major components have command-line packages under the `onos-cli` repository, creating a consolidate CLI client - similar to what `kubectl` provides for Kubernetes.
+
+### Fabric Simulator ([fabric-sim][fabric-sim])
+Fabric Simulator provides simulation of a network of switches, IPUs and hosts via P4Runtime, gNMI and gNOI control interfaces. Controllers and applications can interact with the network devices using the above interfaces to learn about the network devices and the topology of the network. Note that, unlike `mininet`, the `fabric-sim` does not actually emulate data-plane traffic. It merely emulates control interactions and mimics certain behaviours of the data-plane. For example, if an LLDP packet-out is emitted by an application via P4Runtime, it will result in an LLDP packet-in received by the application from the neighboring device.
+
+The simulator can be run as a single application or a docker container. This serves as a cost-effective means to stress-test controllers and applications at scale and a light-weight fixture for software engineers during development and testing of their applications.
+
+### Miscellaneus
+There are also various library modules such as `onos-lib-go` and `onos-net-lib`. These provide facilities used by various platform components and also applicable to custom SDN application components. 
+
 _More documentation will be provided over time..._
+
 
 
 [onos-api]: https://github.com/onosproject/onos-api
@@ -76,3 +90,6 @@ _More documentation will be provided over time..._
 [device-provisioner]: https://github.com/onosproject/device-provisioner
 [topo-discovery]: https://github.com/onosproject/topo-discovery
 [link-agent]: https://github.com/onosproject/link-agent
+[fabric-sim]: https://github.com/onosproject/fabric-sim
+[onos-helm-charts]: https://github.com/onosproject/onos-helm-charts
+
