@@ -42,10 +42,10 @@ Mapping of pipeline configurations to devices is to be done separately, via an a
 
 ### Topology Discovery Component ([topo-discovery][topo-discovery])
 The discovery component is responsible for discovering devices (switches, IPUs) their connectivity via infrastructure links,
-and connected end-stations (hosts). Discovery of links and hosts will occur indirectly through local agents to distribute the I/O load and to
-help maintain performance at scale.
+and connected end-stations (hosts). Discovery of links and hosts will occur indirectly via cooperation with the switch local discovery agents
+to distribute the I/O load and to help maintain performance at scale.
 
-For the most part, the component will operate autonomously. However, it will also expose an auxiliary gRPC API to allow coarse-grained control
+For the most part, the component operates autonomously. However, it also exposes an auxiliary gRPC API to allow coarse-grained control
 of the discovery mechanism, e.g., trigger all or trigger device port/link discovery.
 
 ### Data Plane Reconciliation Library ([onos-control][onos-control])
@@ -55,12 +55,11 @@ while remaining reasonably insulated from the details of a particular P4 program
 
 This component is under active development.
 
-### Switch Local Discovery Agent ([link-agent][link-agent] - to be renamed) 
-The local agent (LA) components are expected to be deployed on each data-plane device (switch or IPU). At the minimum, they are responsible for
-local emissions and handling of ARP and LLDP packets for the purpose of host and infrastructure link discovery.
+### Switch Local Discovery Agent ([discovery-agent][discovery-agent]) 
+The local agent (LA) discovery agent is to be deployed on each data-plane device (switch or IPU). It is responsible for
+local handling of ARP packets for the purpose of host discovery and local emissions and handling LLDP packets for the purpose of infrastructure link discovery.
 
-The LA will provide access to the discovered information/state via gNMI and a custom YANG model. Such mechanism should also be provided to allow
-configuration of the agent host and link discovery behavior.
+The agent provides access to the discovered information/state via gNMI and a custom YANG model. Tailoring of the discovery mechanism can also be achieved by setting its parameters via gNMI set operation.
 
 ### Path Service Component (path-service)
 The path service component provides path and spanning-tree computation services via a gRPC API. To accomplish this, the component interfaces
@@ -89,7 +88,7 @@ _More documentation will be provided over time..._
 [onos-control]: https://github.com/onosproject/onos-control
 [device-provisioner]: https://github.com/onosproject/device-provisioner
 [topo-discovery]: https://github.com/onosproject/topo-discovery
-[link-agent]: https://github.com/onosproject/link-agent
+[discovery-agent]: https://github.com/onosproject/discovery-agent
 [fabric-sim]: https://github.com/onosproject/fabric-sim
 [onos-helm-charts]: https://github.com/onosproject/onos-helm-charts
 
