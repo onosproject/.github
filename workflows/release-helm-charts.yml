@@ -19,12 +19,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Setup yq
+        uses: vegardit/gha-setup-yq@v1
       - name: check version
         run: |
-          sudo snap install yq
           export COMPARISON_BRANCH=origin/master
           git branch -a
-          make check-version
+          ${{ github.action_path }}/version_check.sh all
 
   tag_versions:
     runs-on: ubuntu-latest
@@ -34,12 +35,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Setup yq
+        uses: vegardit/gha-setup-yq@v1
       - name: create release using REST API
         # yamllint disable rule:line-length
         run: |
           export COMPARISON_BRANCH=${{ github.event.before }}
-          sudo snap install yq
-          target_charts=$(./build/bin/version_check.sh get_changed_charts)
+          target_charts=$(${{ github.action_path }}/version_check.sh get_changed_charts)
           while IFS= read -r tc
           do
             tc_ver=$(yq e '.version' $tc/Chart.yaml)
@@ -69,7 +71,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Helm
+      - name: Setup yq
+        uses: vegardit/gha-setup-yq@v1
+      - name: Setup Helm
         uses: azure/setup-helm@v4
         with:
           version: latest
@@ -80,7 +84,6 @@ jobs:
         # yamllint disable rule:line-length
         run: |
           export COMPARISON_BRANCH=${{ github.event.before }}
-          sudo snap install yq rsync
           target_charts=$(${{ github.action_path }}/version_check.sh get_changed_charts)
           rm -rf staging && mkdir -p staging/onos-helm-charts
           while IFS= read -r tc
