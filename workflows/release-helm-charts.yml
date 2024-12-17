@@ -8,9 +8,7 @@ name: Publish image and tag/release code
 
 # yamllint disable-line rule:truthy
 on:
-  push:
-    branches:
-      - master
+  workflow_call:
 
 jobs:
   version-check:
