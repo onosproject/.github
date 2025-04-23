@@ -21,7 +21,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: "API request to create release"
+    - name: "Find all helm charts in repo"
       id: find_charts
       shell: bash
       run: |

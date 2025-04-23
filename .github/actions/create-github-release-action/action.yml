@@ -13,7 +13,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "API request to create release"
+    - name: "Create Github release"
       shell: bash
       run: |
         if gh release create "${{ inputs.VERSION }}" --generate-notes; then
