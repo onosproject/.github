@@ -1,0 +1,32 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+
+name: "Find all Helm charts"
+
+inputs:
+  COMPARISON_BRANCH:
+    description: "Branch to compare current code with"
+    required: false
+    default: "master"
+
+outputs:
+  CHARTS:
+    description: "List of charts that have changed from master"
+    value: ${{ steps.find_charts.outputs.charts }}
+  CHARTS_JSON:
+    description: "Json-formatted list of charts that have changed from master"
+    value: ${{ steps.find_charts.outputs.charts_json }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Find all helm charts in repo"
+      id: find_charts
+      shell: bash
+      run: |
+        export COMPARISON_BRANCH=${{ inputs.COMPARISON_BRANCH }}
+        echo "charts_json=$(${{ github.action_path }}/version_check.sh get_changed_charts | jq -R | jq -sc)" >> $GITHUB_OUTPUT
+        echo 'charts<<EOF' >> $GITHUB_OUTPUT
+        ${{ github.action_path }}/version_check.sh get_changed_charts
+        echo 'EOF' >> $GITHUB_OUTPUT

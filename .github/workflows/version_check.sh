@@ -1,6 +1,7 @@
 #!/bin/bash
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2024 Intel Corporation
+# Copyright 2024 The Linux Foundation
 
 INPUT=$1
 
@@ -65,7 +66,7 @@ function is_unique_version() {
 }
 
 case $INPUT in
-  all)
+  check_unique)
     is_unique_version
     ;;
 
@@ -78,4 +79,3 @@ case $INPUT in
     exit 2
     ;;
 esac
-

@@ -1,0 +1,57 @@
+# Copyright 2025 Canonical Ltd.
+# SPDX-FileCopyrightText: 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+name: Tag GitHub
+# Calling workflow should include "secrets: inherit"
+
+on:
+  workflow_call:
+    outputs:
+      changed:
+        description: "Whether the VERSION file changed"
+        value: ${{ jobs.tag-github.outputs.changed }}
+      version:
+        description: "The version for the release"
+        value: ${{ jobs.tag-github.outputs.version }}
+
+jobs:
+  tag-github:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.version-change.outputs.changed }}
+      version: ${{ steps.version-change.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed
+        id: version-file
+        run: |
+          if git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep VERSION; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION file was not changed"
+          fi
+
+      - name: Validate change in version file
+        id: version-change
+        if: steps.version-file.outputs.changed == 'true'
+        run: |
+          version=$(cat VERSION)
+          echo "version=$version"
+          validate="^[0-9]+\.[0-9]+\.[0-9]+$"
+          if [[ $version =~ $validate ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "version=$version" >> $GITHUB_OUTPUT
+          else
+            echo "Version change not for release"
+          fi
+
+      - name: Create Github release
+        if: steps.version-change.outputs.changed == 'true'
+        uses: onos-project/.github/.github/actions/create-github-release-action@main
+        with:
+          version: ${{ steps.version-change.outputs.version }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_ONOS_PAT }}

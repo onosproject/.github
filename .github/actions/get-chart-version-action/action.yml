@@ -1,0 +1,26 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+
+name: "Get chart version"
+
+inputs:
+  CHART_PATH:
+    description: "Path to chart to check"
+    required: true
+
+outputs:
+  VERSION:
+    description: "Version of given chart"
+    value: ${{ steps.get_version.outputs.version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup yq
+      uses: vegardit/gha-setup-yq@v1
+    - name: "Get version of chart"
+      id: get_version
+      shell: bash
+      # yamllint disable-line rule:line-length
+      run: echo "version=$(yq e '.version' ${{ inputs.CHART_PATH }})" >> $GITHUB_OUTPUT

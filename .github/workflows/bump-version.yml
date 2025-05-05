@@ -1,0 +1,42 @@
+# Copyright 2025 The Linux Foundation
+# SPDX-FileCopyrightText: 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+name: Bump Version
+# Calling workflow should include "secrets: inherit"
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: increment version
+        run: |
+          IFS='.' read -r major minor patch <<< ${{ inputs.version }}
+          patch_update=$((patch+1))
+          NEW_VERSION="$major.$minor.$patch_update-dev"
+          echo $NEW_VERSION > VERSION
+          echo "Updated version: $NEW_VERSION"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GH_ONOS_PAT }}
+          commit-message: Update version
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          signoff: true
+          branch: version-update
+          delete-branch: true
+          title: Update version
+          body: |
+            Update VERSION file
+          add-paths: |
+            VERSION
