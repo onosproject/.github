@@ -7,11 +7,7 @@
 
 This action creates a new release in the calling repo using the provided version.
 
-## create-github-release-action
-
 ## Usage Example
-
-<!-- markdownlint-disable MD046 -->
 
 ```yaml
 steps:
@@ -23,27 +19,17 @@ steps:
       GH_TOKEN: ${{ secrets.GH_ONOS_PAT }}
 ```
 
-<!-- markdownlint-enable MD046 -->
-
 ## Inputs
-
-<!-- markdownlint-disable MD013 -->
 
 | Variable Name | Required | Description  |
 | ------------- | -------- | ------------ |
 | VERSION       | True     | Version to release on Github |
 
-<!-- markdownlint-enable MD013 -->
-
 ## Outputs
-
-<!-- markdownlint-disable MD013 -->
 
 | Variable Name | Description   |
 | ------------- | ------------- |
 | None          |               |
-
-<!-- markdownlint-enable MD013 -->
 
 ## Notes
 
