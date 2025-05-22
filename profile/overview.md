@@ -1,29 +1,34 @@
+<!--
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+
+SPDX-License-Identifier: Apache-2.0
+-->
 # µONOS SDN Platform
 
-The intent of this project is to bootstrap a design and development effort to establish a new generation platform to replace ONOS-classic 
+The intent of this project is to bootstrap a design and development effort to establish a new generation platform to replace ONOS-classic
 for SD-Fabric and similar SDN projects.
 
-While ONOS-classic has served well as a platform, it is aging and should be replaced with a lighter-weight platform to a) enable better 
+While ONOS-classic has served well as a platform, it is aging and should be replaced with a lighter-weight platform to a) enable better
 scaling and b) ensure long-term viability of the SD-Fabric solution.
 
-This project will consist of a suite of components and libraries - following the established µONOS patterns – aimed to replace ONOS-classic 
-for programming the data plane forwarding behaviors. The SD-Fabric use-case will be the proximate driving force guiding the decisions and 
-priorities for this project and any associated design decisions. While some of the components will ultimately become usable in a more general 
+This project will consist of a suite of components and libraries - following the established µONOS patterns – aimed to replace ONOS-classic
+for programming the data plane forwarding behaviors. The SD-Fabric use-case will be the proximate driving force guiding the decisions and
+priorities for this project and any associated design decisions. While some of the components will ultimately become usable in a more general
 context, this should not be the first-order priority.
 
 ## Scaling, Performance & Resilience
-The platform architecture should scale to 1.1K devices (100 switches, 1K IPUs) and 20K hosts. The system should allow for some form of 
+The platform architecture should scale to 1.1K devices (100 switches, 1K IPUs) and 20K hosts. The system should allow for some form of
 horizontal scaling to distribute the control I/O load and to reduce the “blast radius” of a component failure.
 
-## Key Platform Components 
-The following set of components can be classified as being part of a more general platform as they are not inherently specific to the SD-Fabric 
+## Key Platform Components
+The following set of components can be classified as being part of a more general platform as they are not inherently specific to the SD-Fabric
 solution. All communicate via [gRPC APIs][onos-api] using TLS; option to bypass TLS will also be available. The components are available as Docker images and have corresponding Helm charts available under the [onos-helm-charts][onos-helm-charts] repository.
 
 ![Key µONOS Platform Components](https://raw.githubusercontent.com/onosproject/.github/master/profile/micro-onos-components.png)
 
 ### Persistent NIB ([onos-topo][onos-topo])
-This subsystem offers persistence of network entities using an extensible and elastic (Entity/Relation/Kind) model 
-via its NB gRPC API to other components and applications. As such, it is suitable for storing and retrieving 
+This subsystem offers persistence of network entities using an extensible and elastic (Entity/Relation/Kind) model
+via its NB gRPC API to other components and applications. As such, it is suitable for storing and retrieving
 information about major network assets, e.g. devices, links, controllers, hosts, virtual network entities.
 
 The information, organized as a dynamic graph, can be searched, browsed, and monitored easily by any platform or app components.
@@ -31,7 +36,7 @@ The information, organized as a dynamic graph, can be searched, browsed, and mon
 ### Device Provisioner Component ([device-provisioner][device-provisioner])
 This component is primarily responsible for forwarding pipeline configuration/reconciliation using P4Runtime and device chassis configuration via gNMI.
 
-It will expose NB gRPC API that allows management of different pipeline configuration artifact sets (p4info, architecture-specific binaries, etc.) 
+It will expose NB gRPC API that allows management of different pipeline configuration artifact sets (p4info, architecture-specific binaries, etc.)
 and chassis configuration artifacts. Support for additional types of configuration blobs and upload protocols can be provided in the future, e.g. gNOI.
 
 This API is split into two parts:
@@ -55,7 +60,7 @@ while remaining reasonably insulated from the details of a particular P4 program
 
 This component is under active development.
 
-### Switch Local Discovery Agent ([discovery-agent][discovery-agent]) 
+### Switch Local Discovery Agent ([discovery-agent][discovery-agent])
 The local agent (LA) discovery agent is to be deployed on each data-plane device (switch or IPU). It is responsible for
 local handling of ARP packets for the purpose of host discovery and local emissions and handling LLDP packets for the purpose of infrastructure link discovery.
 
@@ -63,7 +68,7 @@ The agent provides access to the discovered information/state via gNMI and a cus
 
 ### Path Service Component (path-service)
 The path service component provides path and spanning-tree computation services via a gRPC API. To accomplish this, the component interfaces
-with onos-topo (NIB) to maintain an up-to-date in-memory weighted directed multigraph from the NIB link entities, on which it can perform 
+with onos-topo (NIB) to maintain an up-to-date in-memory weighted directed multigraph from the NIB link entities, on which it can perform
 efficient path computation. The API should support multiple path computation path algorithms, i.e. Dijkstra, Yen K-shortest paths, Bellman-Ford,
 Kruskal, Johnson (but not necessarily all of these).   _This component has not yet been designed or developed._
 
@@ -76,7 +81,7 @@ Fabric Simulator provides simulation of a network of switches, IPUs and hosts vi
 The simulator can be run as a single application or a docker container. This serves as a cost-effective means to stress-test controllers and applications at scale and a light-weight fixture for software engineers during development and testing of their applications.
 
 ### Miscellaneus
-There are also various library modules such as `onos-lib-go` and `onos-net-lib`. These provide facilities used by various platform components and also applicable to custom SDN application components. 
+There are also various library modules such as `onos-lib-go` and `onos-net-lib`. These provide facilities used by various platform components and also applicable to custom SDN application components.
 
 _More documentation will be provided over time..._
 
@@ -91,4 +96,3 @@ _More documentation will be provided over time..._
 [discovery-agent]: https://github.com/onosproject/discovery-agent
 [fabric-sim]: https://github.com/onosproject/fabric-sim
 [onos-helm-charts]: https://github.com/onosproject/onos-helm-charts
-
