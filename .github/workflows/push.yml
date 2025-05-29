@@ -7,10 +7,7 @@ name: Tag/Publish Release
 
 # yamllint disable-line rule:truthy
 on:
-  push:
-    branches:
-      - main
-      - master
+  workflow_call:
 
 jobs:
   # CAUTION: Other actions depend on this name "tag-github"

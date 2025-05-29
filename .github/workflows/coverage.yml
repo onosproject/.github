@@ -5,10 +5,7 @@ name: coverage
 
 
 on:
-  push:
-    branches:
-      - main
-      - master
+  workflow_call:
 
 jobs:
   coverage:
