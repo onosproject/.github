@@ -1,0 +1,28 @@
+# Copyright 2025 The Linux Foundation
+# SPDX-FileCopyrightText: 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+name: Get All Go Modules
+
+on:
+  workflow_call:
+    inputs:
+      go-dir:
+        description: "Location of Go modules to enumerate"
+        required: false
+        default: "."
+    outputs:
+      modules:
+        description: "Go modules in the current repo"
+        value: $ {{ jobs.get-modules.outputs.modules }}
+
+jobs:
+  get-modules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: create release using REST API
+        run: |
+          echo "modules=$(find ${{ inputs.go-dir }} -name go.mod | jq -R | jq -sc)" >> $GITHUB_OUTPUT

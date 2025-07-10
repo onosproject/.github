@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2025 Canonical Ltd.
+name: Lint Go Code
+
+on:
+  workflow_call:
+    inputs:
+      build_directory:
+        description: "Directory where to run the lint command from"
+        required: false
+        type: string
+        default: '.'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v7.0.0
+        with:
+          version: latest
+          args: -v --config ./.golangci.yml
+          working-directory: ${{ inputs.build_directory }}

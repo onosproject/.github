@@ -5,26 +5,24 @@
 # Copyright 2025 The Linux Foundation
 
 name: Publish image and tag/release code
+# Calling workflow should include "secrets: inherit"
 
 # yamllint disable-line rule:truthy
 on:
   workflow_call:
     inputs:
-      CHARTS_REPO_URL:
-        description: "Repo URL to push charts to"
+      charts_repo_url:
+        description: "URL for the helm repository to push to"
         required: false
         type: string
-      UMBRELLA_CHART:
-        description: "The repository's umbrella chart, if applicable"
-        required: false
+        default: https://charts.aetherproject.org
+      remote_host:
+        description: "Address for host to sync charts to"
+        required: true
         type: string
-      RSYNC_REMOTE_HOST:
-        description: "The remote host to sync charts to"
-        required: false
-        type: string
-      RSYNC_REMOTE_PATH:
-        description: "The path on the remote host to sync charts to"
-        required: false
+      remote_path:
+        description: "Path on remote_host where charts should be stored"
+        required: true
         type: string
 
 jobs:
@@ -81,18 +79,7 @@ jobs:
           version: ${{ steps.version-change.outputs.version }}
 
   version-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup yq
-        uses: vegardit/gha-setup-yq@v1
-      - name: Check all changed charts have unique versions
-        id: version-change
-        run: |
-          export COMPARISON_BRANCH=${{ github.event.before }}
-          ${{ github.action_path }}/version_check.sh check_unique
+    uses: onosproject/.github/.github/workflows/version-check.yml@main
 
   tag-versions:
     runs-on: ubuntu-latest
@@ -138,7 +125,6 @@ jobs:
       - name: Publish all changed charts
         # yamllint disable rule:line-length
         run: |
-          export COMPARISON_BRANCH=${{ github.event.before }}
           target_charts=${{ steps.get-charts.outputs.charts }}
           rm -rf staging && mkdir -p staging/${{ github.repository }}
           while IFS= read -r tc
@@ -148,8 +134,8 @@ jobs:
             helm package $tc --destination staging/${{ github.repository }}/$tc
           done <<< $target_charts
           cd staging
-          curl -o current-index.yaml ${{ inputs.CHARTS_REPO_URL }}/index.yaml
-          helm repo index ${{ github.repository }} --url ${{ inputs.CHARTS_REPO_URL }}/${{ github.repository }} --merge current-index.yaml
+          curl -o current-index.yaml ${{ inputs.charts_repo_url }}/index.yaml
+          helm repo index ${{ github.repository }} --url ${{ inputs.charts_repo_url }}/${{ github.repository }} --merge current-index.yaml
           rm -rf current-index.yaml
           mv ${{ github.repository }}/index.yaml .
           cd ..
@@ -160,8 +146,8 @@ jobs:
         with:
           switches: -rvzh
           path: staging/
-          remote_path: ${{ inputs.RSYNC_REMOTE_PATH }}
-          remote_host: ${{ inputs.RSYNC_REMOTE_HOST }}
+          remote_path: ${{ inputs.remote_path }}
+          remote_host: ${{ inputs.remote_host }}
           remote_user: ${{ secrets.JENKINS_USERNAME }}
           remote_key: ${{ secrets.JENKINS_SSHKEY }}
           remote_key_pass: ${{ secrets.JENKINS_PASSPHRASE }}

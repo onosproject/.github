@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+# SPDX-License-Identifier: Apache-2.0
+name: Version Check
+# Calling workflow should include "secrets: inherit"
+
+on:
+  workflow_call:
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup yq
+        uses: vegardit/gha-setup-yq@v1
+      - name: Check all changed charts have unique versions
+        id: version-change
+        run: |
+          export COMPARISON_BRANCH=${{ github.event.before }}
+          ${{ github.action_path }}/version_check.sh check_unique

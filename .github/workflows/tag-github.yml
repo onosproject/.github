@@ -16,6 +16,7 @@ on:
 
 jobs:
   tag-github:
+    if: github.repository_owner == 'onosproject'
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ steps.version-change.outputs.changed }}
@@ -50,7 +51,7 @@ jobs:
 
       - name: Create Github release
         if: steps.version-change.outputs.changed == 'true'
-        uses: onos-project/.github/.github/actions/create-github-release-action@main
+        uses: onosproject/.github/.github/actions/create-github-release-action@main
         with:
           version: ${{ steps.version-change.outputs.version }}
         env:
