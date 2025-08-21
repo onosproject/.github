@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+# SPDX-License-Identifier: Apache-2.0
+name: Golang Version Check
+# Calling workflow should include "secrets: inherit"
+
+on:
+  workflow_call:
+    outputs:
+      dev_version:
+        description: "The version for the release"
+        value: ${{ jobs.version-check.outputs.dev_version }}
+      target_version:
+        description: "The version for the release"
+        value: ${{ jobs.version-check.outputs.target_version }}
+
+jobs:
+  version-check:
+    if: (github.repository_owner == 'onosproject')
+    runs-on: ubuntu-latest
+    outputs:
+      dev_version: ${{ steps.dev-version-check-step.outputs.dev_version }}
+      target_version: ${{ steps.get-target-version-step.outputs.target_version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: check dev version
+        id: dev-version-check-step
+        run: |
+          if [[ $(cat VERSION | tr -d '\n' | tail -c 4) =~ "-dev" ]]; then
+            echo "dev_version=true" >> $GITHUB_OUTPUT
+          else
+            echo "dev_version=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: get target version
+        id: get-target-version-step
+        run: |
+          echo "target_version=$(cat VERSION)" >> $GITHUB_OUTPUT
+
+      - name: check version
+        id: version-check-step
+        run: |
+          # check if version format is matched to SemVer
+          VER_REGEX='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
+          if [[ ! $(cat VERSION | tr -d '\n' | sed s/-dev//) =~ $VER_REGEX ]]; then
+            exit 1
+          fi
+          exit 0

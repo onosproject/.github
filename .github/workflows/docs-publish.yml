@@ -1,0 +1,49 @@
+# Copyright 2025 The Linux Foundation
+# SPDX-FileCopyrightText: 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+name: Publish Documents
+# Calling workflow should include "secrets: inherit"
+
+on:
+  workflow_call:
+    inputs:
+      remote_host:
+        description: "Address for host to sync charts to"
+        required: true
+        type: string
+      remote_path:
+        description: "Path on remote_host where charts should be stored"
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      BUILD_OUTPUT_PATH: _build/multiversion/
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Build docs
+        run: make multiversion
+
+      - name: List built files
+        run: ls $BUILD_OUTPUT_PATH*
+
+      - name: rsync deployments
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -rvzh --delete-after --exclude=.git
+          path: ${{ env.BUILD_OUTPUT_PATH }}
+          remote_path: ${{ inputs.remote_path }}
+          remote_host: ${{ inputs.remote_host }}
+          remote_user: ${{ secrets.JENKINS_USERNAME }}
+          remote_key: ${{ secrets.JENKINS_SSHKEY }}
+          remote_key_pass: ${{ secrets.JENKINS_PASSPHRASE }}
