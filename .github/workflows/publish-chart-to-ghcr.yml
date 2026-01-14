@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2025 Andy Bavier <andybavier@gmail.com>
+
+name: Publish Helm Chart to GitHub OCI Registry
+
+on:
+  workflow_call:
+    inputs:
+      chart_path:
+        description: 'Path to the Helm chart directory to publish'
+        required: true
+        type: string
+
+jobs:
+  publish-ghcr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Build chart dependencies
+        run: |
+          helm dep build ${{ inputs.chart_path }}
+
+      - name: Package Helm chart
+        run: |
+          helm package ${{ inputs.chart_path }}
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push chart to GHCR
+        run: |
+          # Convert owner name to lowercase for the registry URL
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          CHART_NAME=$(basename ${{ inputs.chart_path }})
+          helm push ${CHART_NAME}-*.tgz oci://ghcr.io/$OWNER
+
+      - name: Logout from GHCR
+        if: always()
+        run: |
+          helm registry logout ghcr.io
