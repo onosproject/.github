@@ -10,7 +10,6 @@ on:
         required: false
         type: string
         default: "latest"
-        type: string
       docker_registry:
         description: "Docker Registry URL"
         default: "docker.io"
@@ -18,6 +17,10 @@ on:
       docker_repository:
         description: "Docker Repository"
         default: "onosproject/"
+        type: string
+      github_registry:
+        description: "GitHub Container Registry URL"
+        default: "ghcr.io"
         type: string
 
 jobs:
@@ -40,10 +43,25 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3.4.0
+        with:
+          registry: ${{ inputs.github_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and Push to Docker Registry
         env:
           DOCKER_REGISTRY: ${{ inputs.docker_registry }}/
           DOCKER_REPOSITORY: ${{ inputs.docker_repository }}
+        run: |
+          make docker-build
+          make docker-push
+
+      - name: Build and Push to GitHub Container Registry
+        env:
+          DOCKER_REGISTRY: ${{ inputs.github_registry }}/
+          DOCKER_REPOSITORY: ${{ github.repository_owner }}/
         run: |
           make docker-build
           make docker-push
