@@ -64,4 +64,4 @@ jobs:
         with:
           VERSION: ${{ steps.version-change.outputs.version }}
         env:
-          GH_TOKEN: ${{ secrets.GH_ONOS_PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
