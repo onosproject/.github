@@ -2,14 +2,17 @@
 # SPDX-FileCopyrightText: 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 name: Bump Version
-# Calling workflow should include "secrets: inherit"
+
+description: |
+  Reads the contents of the VERSION file, increments the patch version,
+  appends '-dev' suffix, writes it back to the VERSION file, and creates a
+  pull request with the updated VERSION file.
+  Assumes that the VERSION file is in the format: MAJOR.MINOR.PATCH
+  Example: 1.2.3 -> 1.2.4-dev
+  The calling workflow should include "secrets: inherit" to pass the GITHUB_TOKEN.
 
 on:
   workflow_call:
-    inputs:
-      version:
-        required: true
-        type: string
 
 jobs:
   bump-version:
@@ -20,7 +23,7 @@ jobs:
           fetch-depth: 0
       - name: increment version
         run: |
-          IFS='.' read -r major minor patch <<< ${{ inputs.version }}
+          IFS='.' read -r major minor patch <<< $(cat VERSION)
           patch_update=$((patch+1))
           NEW_VERSION="$major.$minor.$patch_update-dev"
           echo $NEW_VERSION > VERSION
@@ -29,7 +32,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GH_ONOS_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: Update version
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           signoff: true
