@@ -2,14 +2,12 @@
 # SPDX-FileCopyrightText: 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 name: Bump Version
-
-description: |
-  Reads the contents of the VERSION file, increments the patch version,
-  appends '-dev' suffix, writes it back to the VERSION file, and creates a
-  pull request with the updated VERSION file.
-  Assumes that the VERSION file is in the format: MAJOR.MINOR.PATCH
-  Example: 1.2.3 -> 1.2.4-dev
-  The calling workflow should include "secrets: inherit" to pass the GITHUB_TOKEN.
+# Reads the contents of the VERSION file, increments the patch version,
+# appends '-dev' suffix, writes it back to the VERSION file, and creates a
+# pull request with the updated VERSION file.
+# Assumes that the VERSION file is in the format: MAJOR.MINOR.PATCH
+# Example: 1.2.3 -> 1.2.4-dev
+# The calling workflow should include "secrets: inherit" to pass the GITHUB_TOKEN.
 
 on:
   workflow_call:
