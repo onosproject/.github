@@ -29,22 +29,35 @@ jobs:
     env:
       DOCKER_TAG: ${{ inputs.docker_tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-go@v5
+      - name: Check for Go project
+        id: check-go
+        run: |
+          if [ -f "go.mod" ]; then
+            echo "go-project=true" >> $GITHUB_OUTPUT
+            echo "Go project detected"
+          else
+            echo "go-project=false" >> $GITHUB_OUTPUT
+            echo "No Go project detected"
+          fi
+
+      - name: Setup Go
+        if: steps.check-go.outputs.go-project == 'true'
+        uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
           cache: true
 
       - name: Login to Docker Registry
-        uses: docker/login-action@v3.4.0
+        uses: docker/login-action@v3
         with:
           registry: ${{ inputs.docker_registry }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3.4.0
+        uses: docker/login-action@v3
         with:
           registry: ${{ inputs.github_registry }}
           username: ${{ github.actor }}
