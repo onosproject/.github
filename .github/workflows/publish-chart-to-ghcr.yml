@@ -41,7 +41,7 @@ jobs:
           # Convert owner name to lowercase for the registry URL
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           CHART_NAME=$(basename ${{ inputs.chart_path }})
-          helm push ${CHART_NAME}-*.tgz oci://ghcr.io/$OWNER
+          helm push ${CHART_NAME}-*.tgz oci://ghcr.io/$OWNER/charts
 
       - name: Logout from GHCR
         if: always()
